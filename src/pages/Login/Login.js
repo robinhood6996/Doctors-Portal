@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import login from '../../images/login.png';
 import { Alert, AlertTitle, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useHistory } from 'react-router-dom';
 import useAuth from '../../Hooks/useAuth';
 
 const Login = () => {
     const [loginData, setLoginData] = useState({});
-    const { user, loginUser, autherror, isLoading } = useAuth();
-
+    const { user, loginUser, autherror, isLoading, signinWithGoogle } = useAuth();
+    const location = useLocation();
+    const history = useHistory();
     const handleOnchange = (e) => {
         const field = e.target.name;
         const value = e.target.value;
@@ -18,8 +19,12 @@ const Login = () => {
     }
 
     const loginSubmit = (e) => {
-        loginUser(loginData.email, loginData.password);
+        loginUser(loginData.email, loginData.password, location, history);
         e.preventDefault();
+    }
+
+    const googleSignin = (location, history) => {
+        signinWithGoogle(location, history);
 
     }
 
@@ -38,7 +43,7 @@ const Login = () => {
                                 id="standard-basic"
                                 label="Email"
                                 name="email"
-                                onChange={handleOnchange}
+                                onBlur={handleOnchange}
                                 variant="standard"
                             />
                             <TextField
@@ -46,7 +51,7 @@ const Login = () => {
                                 id="standard-basic"
                                 label="Password"
                                 name="password"
-                                onChange={handleOnchange}
+                                onBlur={handleOnchange}
                                 type="password"
                                 variant="standard"
                             />
@@ -59,6 +64,7 @@ const Login = () => {
                             </NavLink>
                         </form>
                     }
+                    <Button variant="contained" onClick={googleSignin} >Google Signin </Button>
                     {
                         isLoading && <CircularProgress />
                     }

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+import useAuth from '../../../Hooks/useAuth';
 
 const style = {
     position: 'absolute',
@@ -16,14 +17,49 @@ const style = {
     p: 4,
 };
 
-const BookingModal = ({ booking, openModal, handleModalClose, date }) => {
+const BookingModal = ({ booking, openModal, handleModalClose, date, setBookingSuccess }) => {
     const { title, timeSlot } = booking;
+    const { user } = useAuth();
+    const initialInfo = { patientName: user.displayName, email: user.email, phone: '' };
+    const [bookingInfo, setBookingInfo] = useState(initialInfo);
+
+    //handle input
+    const handleOnBlur = (e) => {
+        const field = e.target.name;
+        const value = e.target.value;
+        const newInfo = { ...bookingInfo };
+        newInfo[field] = value;
+        setBookingInfo(newInfo);
+
+    }
 
     //Booking form submit
     const submitBooking = (e) => {
         e.preventDefault();
-        alert('Submitted your booking');
-        handleModalClose();
+        const appointment = {
+            ...bookingInfo,
+            serviceName: title,
+            time: timeSlot,
+            date: date.toLocaleDateString()
+        }
+        console.log(appointment);
+
+        fetch('http://localhost:6008/appointments', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(appointment)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.insertedId) {
+                    setBookingSuccess(true);
+                    handleModalClose();
+                }
+            })
+
+
     }
     return (
         <Modal
@@ -41,19 +77,22 @@ const BookingModal = ({ booking, openModal, handleModalClose, date }) => {
                         disabled
                         id="outlined-size-small"
                         defaultValue={timeSlot}
+                        onBlur={handleOnBlur}
                         size="small"
                         sx={{ width: '90%', my: 1 }}
                     />
                     <TextField
                         id="outlined-size-small"
-                        placeholder="Your Name"
+                        defaultValue={user.displayName}
+                        onBlur={handleOnBlur}
                         size="small"
                         sx={{ width: '90%', my: 1 }}
                     />
                     <TextField
 
                         id="outlined-size-small"
-                        placeholder='Your Email'
+                        defaultValue={user.email}
+                        onBlur={handleOnBlur}
                         size="small"
                         sx={{ width: '90%', my: 1 }}
                     />
@@ -61,6 +100,7 @@ const BookingModal = ({ booking, openModal, handleModalClose, date }) => {
 
                         id="outlined-size-small"
                         placeholder='Phone Number'
+                        onBlur={handleOnBlur}
                         size="small"
                         sx={{ width: '90%', my: 1 }}
                     />
@@ -68,6 +108,7 @@ const BookingModal = ({ booking, openModal, handleModalClose, date }) => {
                         disabled
                         id="outlined-size-small"
                         defaultValue={date.toDateString()}
+                        onBlur={handleOnBlur}
                         size="small"
                         sx={{ width: '90%', my: 1 }}
                     />

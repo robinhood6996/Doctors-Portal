@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import Grid from '@mui/material/Grid';
 import login from '../../../images/login.png';
 import { Alert, AlertTitle, Button, CircularProgress, Container, TextField, Typography } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import useAuth from '../../../Hooks/useAuth';
 
 const Register = () => {
     const [loginData, setLoginData] = useState({});
     const { user, registerUser, isLoading, autherror } = useAuth();
-
-    const handleOnchange = (e) => {
+    const history = useHistory();
+    const handleOnBlur = (e) => {
         const field = e.target.name;
         const value = e.target.value;
         const newData = { ...loginData };
@@ -23,7 +23,7 @@ const Register = () => {
             alert('Your password did not matched!');
             return;
         }
-        registerUser(loginData.email, loginData.password);
+        registerUser(loginData.email, loginData.password, loginData.name, history);
         e.preventDefault();
 
     }
@@ -40,9 +40,17 @@ const Register = () => {
                             <TextField
                                 sx={{ width: '75%', m: 1 }}
                                 id="standard-basic"
+                                label="Name"
+                                name="name"
+                                onBlur={handleOnBlur}
+                                variant="standard"
+                            />
+                            <TextField
+                                sx={{ width: '75%', m: 1 }}
+                                id="standard-basic"
                                 label="Email"
                                 name="email"
-                                onChange={handleOnchange}
+                                onBlur={handleOnBlur}
                                 variant="standard"
                             />
                             <TextField
@@ -50,7 +58,7 @@ const Register = () => {
                                 id="standard-basic"
                                 label="Password"
                                 name="password"
-                                onChange={handleOnchange}
+                                onBlur={handleOnBlur}
                                 type="password"
                                 variant="standard"
                             />
@@ -59,7 +67,7 @@ const Register = () => {
                                 id="standard-basic"
                                 label="Retype Password"
                                 name="password2"
-                                onChange={handleOnchange}
+                                onBlur={handleOnBlur}
                                 type="password"
                                 variant="standard"
                             />
